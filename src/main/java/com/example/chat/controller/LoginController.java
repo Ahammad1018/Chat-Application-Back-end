@@ -3,18 +3,16 @@ package com.example.chat.controller;
 import com.example.chat.entity.*;
 import com.example.chat.security.JwtUtil;
 import com.example.chat.service.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +21,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
@@ -156,18 +153,32 @@ public class LoginController {
 
             Map<String, Object> result = new HashMap<>();
             result.put("jwt", jwtToken);
-            result.put("csrfToken", csrfToken.getToken());
+//            result.put("csrfToken", csrfToken.getToken());
             result.put("key", encodedKey);
-            result.put("csrfHeaderName", csrfToken.getHeaderName());
+//            result.put("csrfHeaderName", csrfToken.getHeaderName());
             result.put("userData", user);
-
-//            loginService.notifyLoginStatus(userName, "online");
 
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
+    }
+
+    @GetMapping("/csrf-token")
+    public ResponseEntity<?> csrfToken(HttpServletRequest request) {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+        if (token == null) {
+            return ResponseEntity.noContent().build(); // no token available
+        }
+
+        // Return the token value and header name in JSON so client can use it
+        return ResponseEntity.ok()
+                .body(new CsrfTokenResponse(token.getHeaderName(), token.getToken()));
+    }
+
+    record CsrfTokenResponse(String headerName, String token) {
     }
 
     @PostMapping("/send-otp")
