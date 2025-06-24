@@ -139,7 +139,8 @@ public class LoginController {
             String encodedKey = encoder.encode(key);
 
             // Get CSRF token from the request (Spring Security adds it automatically)
-            CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+//            CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 
             Cookie cookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
             cookie.setPath("/");
@@ -153,9 +154,9 @@ public class LoginController {
 
             Map<String, Object> result = new HashMap<>();
             result.put("jwt", jwtToken);
-//            result.put("csrfToken", csrfToken.getToken());
+            result.put("csrfToken", csrfToken.getToken());
             result.put("key", encodedKey);
-//            result.put("csrfHeaderName", csrfToken.getHeaderName());
+            result.put("csrfHeaderName", csrfToken.getHeaderName());
             result.put("userData", user);
 
             return new ResponseEntity<>(result, HttpStatus.OK);
