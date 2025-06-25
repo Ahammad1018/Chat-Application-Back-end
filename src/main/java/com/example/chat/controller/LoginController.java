@@ -5,13 +5,13 @@ import com.example.chat.security.JwtUtil;
 import com.example.chat.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -140,12 +140,25 @@ public class LoginController {
 
             // Get CSRF token from the request (Spring Security adds it automatically)
 //            CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+//            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+//
+//            Cookie cookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
+//            cookie.setPath("/");
+//            cookie.setHttpOnly(false); // Make it accessible to JavaScript
+//            cookie.setSecure(true);
+//            response.addCookie(cookie);
+
             CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 
-            Cookie cookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
-            cookie.setPath("/");
-            cookie.setHttpOnly(false); // Make it accessible to JavaScript
-            response.addCookie(cookie);
+            ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
+                    .httpOnly(false)             // Allow JS to read it (required by your frontend)
+                    .secure(true)                // Only send over HTTPS
+                    .path("/")                   // Apply to all paths
+                    .sameSite("Strict")         // Or "Lax" depending on your use case
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, csrfCookie.toString());
+
 
             User user = userService.getUserByUserName(userName);
             user.setStatus("online");

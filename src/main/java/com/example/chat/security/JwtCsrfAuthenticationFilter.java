@@ -33,7 +33,7 @@ public class JwtCsrfAuthenticationFilter extends OncePerRequestFilter {
         String csrfCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
                 .filter(c -> "XSRF-TOKEN".equals(c.getName()))
                 .map(Cookie::getValue)
-                .skip(1)  // Skip the first one, to get the second one
+//                .skip(1)  // Skip the first one, to get the second one
                 .findFirst()
                 .orElse(null);
 
@@ -45,7 +45,7 @@ public class JwtCsrfAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("csrfHeader : " + csrfHeader);
         System.out.println("csrfCookie : " + csrfCookie  +  " or -> " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
                 .filter(c -> "XSRF-TOKEN".equals(c.getName()))
-                .map(Cookie::getValue));
+                .map(Cookie::getValue).toList());
         System.out.println("csrfCookieExists : " + csrfCookieExists);
 
         if (jwtToken != null && csrfHeader != null && (csrfHeader.equals(csrfCookie) || csrfCookieExists)) {
