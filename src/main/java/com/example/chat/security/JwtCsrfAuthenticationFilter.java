@@ -43,7 +43,9 @@ public class JwtCsrfAuthenticationFilter extends OncePerRequestFilter {
 
         System.out.println("JWT Token : " + jwtToken);
         System.out.println("csrfHeader : " + csrfHeader);
-        System.out.println("csrfCookie : " + csrfCookie);
+        System.out.println("csrfCookie : " + csrfCookie  +  " or -> " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+                .filter(c -> "XSRF-TOKEN".equals(c.getName()))
+                .map(Cookie::getValue));
         System.out.println("csrfCookieExists : " + csrfCookieExists);
 
         if (jwtToken != null && csrfHeader != null && (csrfHeader.equals(csrfCookie) || csrfCookieExists)) {
