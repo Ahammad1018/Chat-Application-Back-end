@@ -41,6 +41,11 @@ public class JwtCsrfAuthenticationFilter extends OncePerRequestFilter {
         boolean csrfCookieExists = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
                 .anyMatch(c -> "XSRF-TOKEN".equals(c.getName()));
 
+        System.out.println("JWT Token : " + jwtToken);
+        System.out.println("csrfHeader : " + csrfHeader);
+        System.out.println("csrfCookie : " + csrfCookie);
+        System.out.println("csrfCookieExists : " + csrfCookieExists);
+
         if (jwtToken != null && csrfHeader != null && (csrfHeader.equals(csrfCookie) || csrfCookieExists)) {
             String username = jwtUtil.validateToken(jwtToken);
             if (username != null) {
