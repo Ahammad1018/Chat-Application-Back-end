@@ -30,28 +30,28 @@ public class JwtCsrfAuthenticationFilter extends OncePerRequestFilter {
         String jwtToken = getToken(request);
         String csrfHeader = request.getHeader("X-XSRF-TOKEN");
 
-        String csrfCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-                .filter(c -> "XSRF-TOKEN".equals(c.getName()))
-                .map(Cookie::getValue)
-//                .skip(1)  // Skip the first one, to get the second one
-                .findFirst()
-                .orElse(null);
+//        String csrfCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+//                .filter(c -> "XSRF-TOKEN".equals(c.getName()))
+//                .map(Cookie::getValue)
+////                .skip(1)  // Skip the first one, to get the second one
+//                .findFirst()
+//                .orElse(null);
+//
+//        // Check if there is any XSRF-TOKEN cookie (for fallback)
+//        boolean csrfCookieExists = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+//                .anyMatch(c -> "XSRF-TOKEN".equals(c.getName()));
+//
+//        System.out.println("JWT Token : " + jwtToken);
+//        System.out.println("csrfHeader : " + csrfHeader);
+//        System.out.println("csrfCookie : " + csrfCookie  +  " or -> " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+//                .filter(c -> "XSRF-TOKEN".equals(c.getName()))
+//                .map(Cookie::getValue).toList());
+//        System.out.println("csrfCookieExists : " + csrfCookieExists);
+//
+//        System.out.println("Cookies : " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+//                .map(Cookie::getName).toList());
 
-        // Check if there is any XSRF-TOKEN cookie (for fallback)
-        boolean csrfCookieExists = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-                .anyMatch(c -> "XSRF-TOKEN".equals(c.getName()));
-
-        System.out.println("JWT Token : " + jwtToken);
-        System.out.println("csrfHeader : " + csrfHeader);
-        System.out.println("csrfCookie : " + csrfCookie  +  " or -> " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-                .filter(c -> "XSRF-TOKEN".equals(c.getName()))
-                .map(Cookie::getValue).toList());
-        System.out.println("csrfCookieExists : " + csrfCookieExists);
-
-        System.out.println("Cookies : " + Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-                .map(Cookie::getName).toList());
-
-        if (jwtToken != null && csrfHeader != null && (csrfHeader.equals(csrfCookie) || csrfCookieExists)) {
+        if (jwtToken != null && csrfHeader != null){ // && (csrfHeader.equals(csrfCookie) || csrfCookieExists)) {
             String username = jwtUtil.validateToken(jwtToken);
             if (username != null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
